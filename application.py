@@ -22,6 +22,7 @@ cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vac
 
 
 def app_init():
+    print('loading metadata')
     f = open('./metadata/states.json', 'r')
     states = json.loads(f.read())
     f.close()
@@ -118,6 +119,7 @@ def app_init():
 )
 def get_available_capacity(s_id, min_age, date):
     try:
+        print(f'getting availability for state {s_id}, min age {min_age}, start date {date}')
         # dist_availability_df = pd.DataFrame(columns=['District', 'Availability'])
         center_availability_df = pd.DataFrame(columns=cols)
 
@@ -160,7 +162,9 @@ def get_available_capacity(s_id, min_age, date):
 
 if __name__ == '__main__':
     try:
+        print('initializing application')
         app_init()
+        print('init successful')
         #app.run_server(debug=True, port=8050)
         app.run_server(host='0.0.0.0', port=8050, debug=True)
 
