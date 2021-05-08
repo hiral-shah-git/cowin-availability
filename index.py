@@ -21,6 +21,7 @@ states = json.loads(f.read())
 f.close()
 min_ages = [18, 45]
 
+server = app.server
 app.layout = html.Div(
         children=[
             html.Div(
