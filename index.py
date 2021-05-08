@@ -14,18 +14,14 @@ headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
                          'Chrome/50.0.2661.102 Safari/537.36'}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 
-app.title = "CoWIN Availability"
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
 
+f = open('./metadata/states.json', 'r')
+states = json.loads(f.read())
+f.close()
+min_ages = [18, 45]
 
-def app_init():
-    print('loading metadata')
-    f = open('./metadata/states.json', 'r')
-    states = json.loads(f.read())
-    f.close()
-    min_ages = [18, 45]
-
-    app.layout = html.Div(
+app.layout = html.Div(
         children=[
             html.Div(
                 children=[
@@ -89,7 +85,7 @@ def app_init():
             ),
             html.Div(
                 children=[dcc.Loading(id="loading-icon",
-                                      children=[  # html.Div(dcc.Graph(id='map')),
+                                      children=[
                                           DataTable(id='table',
                                                     sort_action="native",
                                                     sort_mode="multi",
@@ -106,7 +102,6 @@ def app_init():
 
 
 @app.callback(
-    # [Output('map', 'figure'), Output('table', 'data')],
     Output('table', 'data'),
     [
         Input("state-filter", "value"),
@@ -159,8 +154,7 @@ def get_available_capacity(s_id, min_age, date):
 
 if __name__ == '__main__':
     try:
-        print('initializing application')
-        app_init()
+        app.title = "CoWIN Availability"
         print('init successful')
         app.run_server(host='0.0.0.0', port=8050, debug=True)
 
