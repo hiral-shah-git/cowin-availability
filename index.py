@@ -157,7 +157,8 @@ if __name__ == '__main__':
     try:
         app.title = "CoWIN Availability"
         print('init successful')
-        app.run_server(host='0.0.0.0', port=8050, debug=True)
+        app.run_server(#host='0.0.0.0', port=8050,
+            debug=True)
 
     except Exception as e:
         print("An error has occurred while checking the availability of slot : {}".format(e))
