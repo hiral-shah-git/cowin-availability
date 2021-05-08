@@ -9,10 +9,11 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash_table import DataTable
 import requests
+from fake_useragent import UserAgent
 
+ua = UserAgent()
 headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
-           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-                         'Chrome/50.0.2661.102 Safari/537.36'}
+           'User-Agent': str(ua.google)}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
@@ -150,7 +151,8 @@ def get_available_capacity(s_id, min_age, date):
                                                                                             'Vaccine': s['vaccine'],
                                                                                             'Fee': c['fee_type']},
                                                                                            ignore_index=True)
-
+        else:
+            print('failed: ', response)
         return center_availability_df.to_dict('records')
 
     except Exception as e:
