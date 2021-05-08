@@ -2,21 +2,18 @@ from datetime import timedelta, date as dt, datetime as dttime
 import json
 
 import pandas as pd
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash_table import DataTable
 import requests
+from app import app
 
 headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/50.0.2661.102 Safari/537.36'}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
 app.title = "CoWIN Availability"
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
 
@@ -165,7 +162,6 @@ if __name__ == '__main__':
         print('initializing application')
         app_init()
         print('init successful')
-        #app.run_server(debug=True, port=8050)
         app.run_server(host='0.0.0.0', port=8050, debug=True)
 
     except Exception as e:
