@@ -9,7 +9,6 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash_table import DataTable
 import requests
-from app import app
 
 headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
