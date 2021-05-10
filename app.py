@@ -15,6 +15,7 @@ ua = UserAgent()
 headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
            'User-Agent': str(ua.google)}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
+proxies = {'http': '127.0.0.1:8050'}
 
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
 
@@ -130,7 +131,7 @@ def get_available_capacity(s_id, min_age, date):
                 # total_availability = 0
                 d_id = d['district_id']
                 cowin_api = f'{cowin_server}appointment/sessions/public/calendarByDistrict?district_id={d_id}&date=' + date
-                response = requests.get(url=cowin_api, headers=headers)
+                response = requests.get(url=cowin_api, headers=headers, proxies=proxies)
                 if response.status_code == 200:
                     content = json.loads(response.content)
                     if content['centers'] != 0:
