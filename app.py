@@ -96,7 +96,9 @@ app.layout = html.Div(
 
 
 @app.callback(
-    [Output('table', 'data'), Output('status', 'children')],
+    [Output('table', 'data'),
+     Output('table', 'page_current'),
+     Output('status', 'children')],
     [
         Input('state-filter', 'value'),
         Input('age-filter', 'value'),
@@ -141,7 +143,7 @@ def get_available_capacity(s_id, min_age, date):
         status = ''
         if not len(availability_df):
             status = 'No slots available'
-        return availability_df.to_dict('records'), status
+        return availability_df.to_dict('records'), 0, status
 
     except Exception as e:
         print("An error has occurred while getting the valid slots : {}".format(e))
