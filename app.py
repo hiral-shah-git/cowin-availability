@@ -9,13 +9,11 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash_table import DataTable
 import requests
-from fake_useragent import UserAgent
 
-ua = UserAgent()
+
 headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
-           'User-Agent': str(ua.google)}
+           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
-proxies = {'http': '127.0.0.1:8050'}
 
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
 
@@ -95,6 +93,7 @@ app.layout = html.Div(
                                       children=[
                                           DataTable(id='table',
                                                     sort_action="native",
+                                                    filter_action="native",
                                                     sort_mode="multi",
                                                     columns=[{"name": i, "id": i} for i in cols],
                                                     page_size=10
@@ -131,7 +130,7 @@ def get_available_capacity(s_id, min_age, date):
                 # total_availability = 0
                 d_id = d['district_id']
                 cowin_api = f'{cowin_server}appointment/sessions/public/calendarByDistrict?district_id={d_id}&date=' + date
-                response = requests.get(url=cowin_api, headers=headers, proxies=proxies)
+                response = requests.get(url=cowin_api, headers=headers)
                 if response.status_code == 200:
                     content = json.loads(response.content)
                     if content['centers'] != 0:
