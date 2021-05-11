@@ -19,11 +19,13 @@ cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 
 def get_districts(s_id):
     district_url = f'{cowin_server}admin/location/districts/{s_id}'
+    print('get districts for state ', s_id)
     response = requests.get(url=district_url, headers=headers)
     if response.status_code == 200:
         districts = json.loads(response.content)
     else:
         districts = {'districts': []}
+        print('Failed: ', response)
     return districts
 
 
@@ -164,6 +166,7 @@ def get_available_capacity(s_id, d_id, min_age, date):
 
 def get_availability(availability_df, d_id, date, min_age):
     cowin_api = f'{cowin_server}appointment/sessions/public/calendarByDistrict?district_id={d_id}&date=' + date
+    print('get availability for district ', d_id)
     response = requests.get(url=cowin_api, headers=headers)
     if response.status_code == 200:
         content = json.loads(response.content)
@@ -173,7 +176,7 @@ def get_availability(availability_df, d_id, date, min_age):
                     min_age_limit = s["min_age_limit"]
                     capacity = s["available_capacity"]
                     if int(min_age_limit) == min_age and int(capacity) > 0:
-                        print(s)
+                        # print(s)
                         availability_df = availability_df.append({'Date': s['date'],
                                                                   'District': c['district_name'],
                                                                   'Center': c['name'],
@@ -183,6 +186,9 @@ def get_availability(availability_df, d_id, date, min_age):
                                                                   'Vaccine': s['vaccine'],
                                                                   'Fee': c['fee_type']},
                                                                  ignore_index=True)
+    else:
+        print('Failed: ', response)
+
     return availability_df
 
 
