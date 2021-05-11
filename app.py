@@ -20,20 +20,22 @@ cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 def get_districts(s_id):
     district_url = f'{cowin_server}admin/location/districts/{s_id}'
     print('get districts for state ', s_id)
+    success = True
     response = requests.get(url=district_url, headers=headers)
     if response.status_code == 200:
         districts = json.loads(response.content)
     else:
         districts = {'districts': []}
         print('Failed: ', response, response.content)
-    return districts
+        success = False
+    return districts, success
 
 
 cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
 f = open('./metadata/states.json', 'r')
 states = json.loads(f.read())
 f.close()
-districts = get_districts(1)
+districts, _ = get_districts(1)
 min_ages = {18: '18-44', 45: '45+'}
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN])
@@ -128,8 +130,9 @@ app.layout = html.Div(
     Input('state-filter', 'value')
 )
 def update_districts(s_id):
-    district_options = get_districts(s_id)
-    return [{"label": d['district_name'], "value": d['district_id']} for d in district_options['districts']], 0
+    dist_response, success = get_districts(s_id)
+    district_options = [{"label": d['district_name'], "value": d['district_id']} for d in dist_response['districts']]
+    return district_options, 0
 
 
 @app.callback(
@@ -150,13 +153,13 @@ def get_available_capacity(s_id, d_id, min_age, date):
         status, success = '', True
         date = dt.strftime(dttime.strptime(date, "%Y-%m-%d").date(), '%d-%m-%Y')
 
+        districts, success = get_districts(s_id)
         if d_id == 0:
-            districts = get_districts(s_id)
             for d in districts['districts']:
                 dist_id = d['district_id']
-                availability_df, success = get_availability(availability_df, dist_id, date, min_age)
+                availability_df = get_availability(availability_df, dist_id, date, min_age)
         else:
-            availability_df, success = get_availability(availability_df, d_id, date, min_age)
+            availability_df = get_availability(availability_df, d_id, date, min_age)
 
         if not len(availability_df):
             status = 'No slots available'
@@ -171,10 +174,9 @@ def get_available_capacity(s_id, d_id, min_age, date):
 
 def get_availability(availability_df, d_id, date, min_age):
     cowin_api = f'{cowin_server}appointment/sessions/public/calendarByDistrict?district_id={d_id}&date=' + date
-    print('get availability for district ', d_id)
+    print(f'get availability for district {d_id}, min age {min_age}, start date {date}')
     response = requests.get(url=cowin_api, headers=headers)
     if response.status_code == 200:
-        success = True
         content = json.loads(response.content)
         if content['centers'] != 0:
             for c in content['centers']:
@@ -194,9 +196,8 @@ def get_availability(availability_df, d_id, date, min_age):
                                                                  ignore_index=True)
     else:
         print('Failed: ', response, response.content)
-        success = False
 
-    return availability_df, success
+    return availability_df
 
 
 if __name__ == '__main__':
