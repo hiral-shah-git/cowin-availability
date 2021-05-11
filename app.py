@@ -25,7 +25,7 @@ def get_districts(s_id):
         districts = json.loads(response.content)
     else:
         districts = {'districts': []}
-        print('Failed: ', response)
+        print('Failed: ', response, response.content)
     return districts
 
 
@@ -99,7 +99,8 @@ app.layout = html.Div(
             className="menu",
         ),
         html.Br(),
-        html.Footer(children=['Run by ', dcc.Link(children='Hiral Shah', href='https://www.linkedin.com/in/hiral-shah-11a15a104',)
+        html.Footer(children=['Run by ',
+                              dcc.Link(children='Hiral Shah', href='https://www.linkedin.com/in/hiral-shah-11a15a104', )
                               ], style={'text-align': 'right'}
                     ),
         html.Br(),
@@ -119,6 +120,7 @@ app.layout = html.Div(
         ),
     ], style={'marginTop': 25, 'margin-left': 25, 'margin-right': 25}
 )
+
 
 @app.callback(
     [Output('district-filter', 'options'),
@@ -145,18 +147,21 @@ def get_available_capacity(s_id, d_id, min_age, date):
     try:
         print(f'getting availability for state {s_id}, min age {min_age}, start date {date}')
         availability_df = pd.DataFrame(columns=cols)
-        status = ''
+        status, success = '', True
         date = dt.strftime(dttime.strptime(date, "%Y-%m-%d").date(), '%d-%m-%Y')
 
-        if d_id==0:
+        if d_id == 0:
             districts = get_districts(s_id)
             for d in districts['districts']:
                 dist_id = d['district_id']
-                availability_df = get_availability(availability_df, dist_id, date, min_age)
+                availability_df, success = get_availability(availability_df, dist_id, date, min_age)
         else:
-            availability_df = get_availability(availability_df, d_id, date, min_age)
+            availability_df, success = get_availability(availability_df, d_id, date, min_age)
+
         if not len(availability_df):
             status = 'No slots available'
+        if not success:
+            status = 'Server unreachable, try after sometime...'
 
         return availability_df.to_dict('records'), 0, status
 
@@ -169,6 +174,7 @@ def get_availability(availability_df, d_id, date, min_age):
     print('get availability for district ', d_id)
     response = requests.get(url=cowin_api, headers=headers)
     if response.status_code == 200:
+        success = True
         content = json.loads(response.content)
         if content['centers'] != 0:
             for c in content['centers']:
@@ -187,9 +193,10 @@ def get_availability(availability_df, d_id, date, min_age):
                                                                   'Fee': c['fee_type']},
                                                                  ignore_index=True)
     else:
-        print('Failed: ', response)
+        print('Failed: ', response, response.content)
+        success = False
 
-    return availability_df
+    return availability_df, success
 
 
 if __name__ == '__main__':
