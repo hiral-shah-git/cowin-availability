@@ -97,6 +97,10 @@ app.layout = html.Div(
             className="menu",
         ),
         html.Br(),
+        html.Footer(children=['Run by ', dcc.Link(children='Hiral Shah', href='https://www.linkedin.com/in/hiral-shah-11a15a104',)
+                              ], style={'text-align': 'right'}
+                    ),
+        html.Br(),
         html.Div(
             children=[dcc.Loading(id="loading-icon",
                                   children=[html.H4(id='status'),
@@ -111,7 +115,7 @@ app.layout = html.Div(
                       ],
             className="wrapper",
         ),
-    ]
+    ], style={'marginTop': 25, 'margin-left': 25, 'margin-right': 25}
 )
 
 @app.callback(
