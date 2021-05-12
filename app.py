@@ -16,7 +16,6 @@ headers = {'Accept': 'application/json', 'Accept-Language': 'hi_IN',
                          'Chrome/39.0.2171.95 Safari/537.36'}
 cowin_server = 'https://cdn-api.co-vin.in/api/v2/'
 
-
 def get_districts(s_id):
     district_url = f'{cowin_server}admin/location/districts/{s_id}'
     print('get districts for state ', s_id)
@@ -31,14 +30,17 @@ def get_districts(s_id):
     return districts, success
 
 
-cols = ['Date', 'District', 'Center', 'Pincode', 'Address', 'Availability', 'Vaccine', 'Fee']
+cols = ['Date', 'District', 'Center', 'Availability', 'Pincode', 'Address', 'Vaccine', 'Fee']
 f = open('./metadata/states.json', 'r')
 states = json.loads(f.read())
 f.close()
 districts, _ = get_districts(1)
 min_ages = {18: '18-44', 45: '45+'}
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN],
+                meta_tags=[{'name': 'viewport',
+                            'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}]
+                )
 server = app.server
 app.title = "CoWIN Availability"
 app.layout = html.Div(
@@ -67,7 +69,7 @@ app.layout = html.Div(
                           value=1,  # 9,
                           clearable=False,
                           className="dropdown",
-                          style={'width': '55%', 'display': 'inline-block'},
+                          style={'width': '70%', 'display': 'inline-block'},
                       ),
                       html.Div(children="District", className="menu-title"),
                       dcc.Dropdown(
@@ -78,7 +80,7 @@ app.layout = html.Div(
                           value=0,
                           clearable=False,
                           className="dropdown",
-                          style={'width': '55%', 'display': 'inline-block'},
+                          style={'width': '70%', 'display': 'inline-block'},
                       ),
                       html.Div(children="Age", className="menu-title"),
                       dcc.Dropdown(
@@ -88,7 +90,7 @@ app.layout = html.Div(
                           clearable=False,
                           searchable=False,
                           className="dropdown",
-                          style={'width': '25%', 'display': 'inline-block'},
+                          style={'width': '35%', 'display': 'inline-block'},
                       ),
                       html.Div(children="Start Date", className="menu-title"),
                       dcc.DatePickerSingle(
@@ -102,7 +104,7 @@ app.layout = html.Div(
         ),
         html.Br(),
         html.Footer(children=['Run by ',
-                              dcc.Link(children='Hiral Shah', href='https://www.linkedin.com/in/hiral-shah-11a15a104', )
+                              dcc.Link(children='Hiral Shah', href='https://www.linkedin.com/in/hiral-shah-11a15a104',)
                               ], style={'text-align': 'right'}
                     ),
         html.Br(),
@@ -110,10 +112,12 @@ app.layout = html.Div(
             children=[dcc.Loading(id="loading-icon",
                                   children=[html.H4(id='status'),
                                             DataTable(id='table',
-                                                      sort_action="native",
-                                                      sort_mode="multi",
+                                                      sort_action="native", sort_mode="multi",
                                                       columns=[{"name": i, "id": i} for i in cols],
-                                                      page_size=10
+                                                      fixed_columns={'headers': True, 'data': 1},
+                                                      page_size=10,
+                                                      style_cell={'padding': '7px'},
+                                                      style_table={'minWidth': '100%'},
                                                       ),
                                             ],
                                   )
@@ -191,9 +195,9 @@ def get_availability(availability_df, d_id, date, min_age):
                         availability_df = availability_df.append({'Date': s['date'],
                                                                   'District': c['district_name'],
                                                                   'Center': c['name'],
+                                                                  'Availability': capacity,
                                                                   'Pincode': c['pincode'],
                                                                   'Address': c['address'],
-                                                                  'Availability': capacity,
                                                                   'Vaccine': s['vaccine'],
                                                                   'Fee': c['fee_type']},
                                                                  ignore_index=True)
