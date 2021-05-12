@@ -157,9 +157,11 @@ def get_available_capacity(s_id, d_id, min_age, date):
         if d_id == 0:
             for d in districts['districts']:
                 dist_id = d['district_id']
-                availability_df = get_availability(availability_df, dist_id, date, min_age)
+                availability_df, success = get_availability(availability_df, dist_id, date, min_age)
+                if not success:
+                    break
         else:
-            availability_df = get_availability(availability_df, d_id, date, min_age)
+            availability_df, success = get_availability(availability_df, d_id, date, min_age)
 
         if not len(availability_df):
             status = 'No slots available'
@@ -175,6 +177,7 @@ def get_available_capacity(s_id, d_id, min_age, date):
 def get_availability(availability_df, d_id, date, min_age):
     cowin_api = f'{cowin_server}appointment/sessions/public/calendarByDistrict?district_id={d_id}&date=' + date
     print(f'get availability for district {d_id}, min age {min_age}, start date {date}')
+    success = True
     response = requests.get(url=cowin_api, headers=headers)
     if response.status_code == 200:
         content = json.loads(response.content)
@@ -196,8 +199,9 @@ def get_availability(availability_df, d_id, date, min_age):
                                                                  ignore_index=True)
     else:
         print('Failed: ', response, response.content)
+        success = False
 
-    return availability_df
+    return availability_df, success
 
 
 if __name__ == '__main__':
