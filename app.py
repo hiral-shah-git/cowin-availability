@@ -37,7 +37,10 @@ f.close()
 districts, _ = get_districts(1)
 min_ages = {18: '18-44', 45: '45+'}
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CERULEAN],
+                meta_tags=[{'name': 'viewport',
+                            'content': 'width=device-width, initial-scale=0.5, maximum-scale=1, minimum-scale=0.5,'}]
+                )
 server = app.server
 app.title = "CoWIN Availability"
 app.layout = html.Div(
@@ -87,7 +90,7 @@ app.layout = html.Div(
                           clearable=False,
                           searchable=False,
                           className="dropdown",
-                          style={'width': '35%', 'display': 'inline-block'},
+                          style={'width': '40%', 'display': 'inline-block'},
                       ),
                       html.Div(children="Start Date", className="menu-title"),
                       dcc.DatePickerSingle(
@@ -112,7 +115,7 @@ app.layout = html.Div(
                                                       sort_action="native", sort_mode="multi",
                                                       columns=[{"name": i, "id": i} for i in cols],
                                                       fixed_columns={'headers': True, 'data': 1},
-                                                      page_size=10,
+                                                      page_size=15,
                                                       style_cell={'padding': '7px'},
                                                       style_table={'minWidth': '100%'},
                                                       ),
